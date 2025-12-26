@@ -1,0 +1,67 @@
+# ======================
+# Procurement Classifier
+# ======================
+
+# API Keys and Sensitive Data
+_Config/config.ini
+api_keys/
+**/*_key.txt
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Files
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# Excel temporary files
+~$*.xlsx
+~$*.xlsb
+
+# Output folder - user results
+Output/
+
+# Development/testing files (not needed for users)
+test_prompt.py
+RUN_PROMPT_TESTER.bat
+PENDING_CHANGES.md
+CREATE_PACKAGE.bat
+
+# Old clustering versions
+clustering_app.py
+clustering_app_v2.py
+clustering_app_v3_fast.py
+
+# Internal documentation
+AI_WEB_MERGE_LOGIC.md
+CATEGORY_CLUSTERING_EXPLAINED.md
+CLUSTERING_TOOL_README.md
+NORMALIZATION_OPTIMIZED.md
+PROMPT_SIMPLIFIED.md
+SIMPLIFIED_CLASSIFICATION.md
+TOOL_SYNCHRONIZATION.md
+
+# Jupyter/IPython
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log

@@ -1,0 +1,71 @@
+[API_Keys]
+# OPTION 1: Direct API keys (paste your keys here)
+openai_api_key = sk-proj-your-openai-key-here
+google_api_key = your-google-api-key-here
+google_cse_id = your-google-cse-id-here
+perplexity_api_key = 
+
+# OPTION 2: Use file paths (more secure - keys stored in separate files)
+# Uncomment and set paths if you prefer file-based keys
+# openai_key_file = C:\path\to\openai_key.txt
+# google_key_file = C:\path\to\google_api_key.txt
+# google_cse_id_file = C:\path\to\google_cse_id.txt
+# perplexity_key_file = C:\path\to\perplexity_key.txt
+
+[Paths]
+# Leave empty for auto-detect (creates 'Output' folder in project directory)
+projects_directory = 
+
+[Model]
+# Default model: gpt-5-mini recommended for balance of cost/quality
+# Options: gpt-5, gpt-5-mini, gpt-5-nano, gpt-4o, gpt-4o-mini
+default_model = gpt-5-mini
+
+# Available models for UI selection
+available_models = gpt-5, gpt-5-mini, gpt-5-nano, gpt-4o, gpt-4o-mini
+
+# GPT-5 Responses API settings
+verbosity = low
+reasoning_effort = medium
+
+# Pricing per 1M tokens (USD) - for cost estimation
+gpt_5_input_price = 1.25
+gpt_5_output_price = 10.00
+gpt_5_mini_input_price = 0.25
+gpt_5_mini_output_price = 2.00
+gpt_5_nano_input_price = 0.05
+gpt_5_nano_output_price = 0.40
+gpt_4o_input_price = 2.50
+gpt_4o_output_price = 10.00
+gpt_4o_mini_input_price = 0.15
+gpt_4o_mini_output_price = 0.60
+
+[Classification]
+# Web search for low-confidence items (requires Google API)
+use_web_search = True
+web_search_provider = google
+web_search_confidence_threshold = low
+web_search_results = 1
+
+# Taxonomy matching threshold (0.0-1.0)
+taxonomy_match_threshold = 0.85
+
+# Extract structured attributes (material, dimensions, part numbers, etc.)
+extract_attributes = True
+
+[Normalization]
+# Phase 2: Fingerprinting & clustering for consistency
+enable_normalization = True
+fingerprint_threshold = 0.85
+ngram_size = 2
+min_cluster_size = 2
+generate_normalized_descriptions = True
+
+[Performance]
+# Parallel AI calls (increase for faster processing, uses more API quota)
+max_workers = 10
+
+# Progress and checkpointing
+batch_size = 50
+save_checkpoint_every = 100
+show_progress_every = 50

@@ -154,8 +154,13 @@ class Config:
         # 2. Try Streamlit secrets (for Streamlit Cloud)
         try:
             import streamlit as st
-            if hasattr(st, 'secrets') and key in st.secrets:
-                return st.secrets[key]
+            if hasattr(st, 'secrets'):
+                # Try lowercase key (e.g., openai_api_key)
+                if key in st.secrets:
+                    return st.secrets[key]
+                # Try uppercase env var name (e.g., OPENAI_API_KEY)
+                if env_var and env_var in st.secrets:
+                    return st.secrets[env_var]
         except:
             pass
         

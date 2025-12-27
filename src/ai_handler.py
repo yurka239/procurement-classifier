@@ -631,10 +631,13 @@ RESPOND WITH JSON ONLY:
             # Extract text from response
             output_text = ""
             for item in response.output:
-                if hasattr(item, "content"):
+                if hasattr(item, "content") and item.content is not None:
                     for content in item.content:
                         if hasattr(content, "text"):
                             output_text += content.text
+                # Also check for direct text attribute (some response formats)
+                elif hasattr(item, "text") and item.text:
+                    output_text += item.text
             
             usage = {
                 'input_tokens': response.usage.input_tokens if response.usage else 0,

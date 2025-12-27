@@ -184,6 +184,49 @@ Edit `_Config/config.ini`:
 
 ---
 
+## ☁️ Cloud Deployment (Streamlit Cloud)
+
+### Quick Deploy
+
+1. Fork/push this repo to your GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Click "New app" → Select your repo → `app.py`
+4. Add secrets in Settings → Secrets:
+
+```toml
+# API Keys
+openai_api_key = "sk-proj-your-key-here"
+google_api_key = "AIzaSy-your-key"
+google_cse_id = "your-cse-id"
+
+# Enable authentication
+REQUIRE_AUTH = true
+
+# User accounts
+[users.admin]
+password_hash = "admin"
+role = "admin"
+name = "Administrator"
+
+[users.john]
+password_hash = "password123"
+role = "user"
+name = "John Smith"
+```
+
+5. Click "Deploy"
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | Your OpenAI API key |
+| `GOOGLE_API_KEY` | Google Custom Search API key |
+| `GOOGLE_CSE_ID` | Google Custom Search Engine ID |
+| `REQUIRE_AUTH` | Set to `true` to enable login |
+
+---
+
 ## Troubleshooting
 
 | Problem | Solution |

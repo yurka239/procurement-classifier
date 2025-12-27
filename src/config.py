@@ -1,3 +1,4 @@
+import os
 import re
 from pathlib import Path
 import configparser
@@ -88,8 +89,8 @@ class Config:
         self.show_progress_every = int(self.config['Performance']['show_progress_every'])
         self.max_workers = int(self.config['Performance'].get('max_workers', '10'))  # Parallel processing workers
         
-        # Load API keys (try direct config first, then files for backward compatibility)
-        self.openai_key = self._load_api_key('API_Keys', 'openai_api_key', self.openai_key_file)
+        # Load API keys (priority: env vars > streamlit secrets > config.ini > files)
+        self.openai_key = self._load_api_key('API_Keys', 'openai_api_key', self.openai_key_file, env_var='OPENAI_API_KEY')
         
         # Validate OpenAI key (check for placeholder text)
         if not self.openai_key or 'your-' in self.openai_key.lower() or 'paste' in self.openai_key.lower() or not self.openai_key.startswith('sk-'):
@@ -107,8 +108,8 @@ class Config:
         
         if self.web_search_provider == 'google':
             try:
-                self.google_api_key = self._load_api_key('API_Keys', 'google_api_key', self.google_key_file, validator=self._extract_google_key)
-                self.google_cse_id = self._load_api_key('API_Keys', 'google_cse_id', self.google_cse_id_file, validator=self._extract_cse_id)
+                self.google_api_key = self._load_api_key('API_Keys', 'google_api_key', self.google_key_file, validator=self._extract_google_key, env_var='GOOGLE_API_KEY')
+                self.google_cse_id = self._load_api_key('API_Keys', 'google_cse_id', self.google_cse_id_file, validator=self._extract_cse_id, env_var='GOOGLE_CSE_ID')
                 
                 if self.google_api_key and self.google_cse_id:
                     print(f"[Config] Google API key loaded: {self.google_api_key[:10]}...")
@@ -123,7 +124,7 @@ class Config:
                 self.google_cse_id = None
                 self.perplexity_key = None
         elif self.web_search_provider == 'perplexity':
-            self.perplexity_key = self._load_api_key('API_Keys', 'perplexity_api_key', self.perplexity_key_file)
+            self.perplexity_key = self._load_api_key('API_Keys', 'perplexity_api_key', self.perplexity_key_file, env_var='PERPLEXITY_API_KEY')
             self.google_api_key = None
             self.google_cse_id = None
         else:
@@ -139,17 +140,31 @@ class Config:
             print(f"  • Perplexity model: {self.perplexity_model}")
             print(f"  • Enhancement triggers: {self.web_search_confidence_levels}")
     
-    def _load_api_key(self, section, key, file_path=None, validator=None):
+    def _load_api_key(self, section, key, file_path=None, validator=None, env_var=None):
         """
-        Load API key from config.ini or file (for backward compatibility).
-        Priority: direct key in config.ini > file path
+        Load API key with priority: Environment Variable > config.ini > file path
+        This allows cloud deployment (env vars) while keeping local dev (config.ini) working.
         """
-        # Try direct key first
+        # 1. Try environment variable first (for cloud deployment)
+        if env_var:
+            env_value = os.environ.get(env_var, '').strip()
+            if env_value:
+                return env_value
+        
+        # 2. Try Streamlit secrets (for Streamlit Cloud)
+        try:
+            import streamlit as st
+            if hasattr(st, 'secrets') and key in st.secrets:
+                return st.secrets[key]
+        except:
+            pass
+        
+        # 3. Try direct key in config.ini (for local development)
         direct_key = self.config[section].get(key, '').strip()
         if direct_key:
             return direct_key
         
-        # Fall back to file-based key
+        # 4. Fall back to file-based key (backward compatibility)
         if file_path and file_path.exists():
             if validator:
                 return validator(file_path)

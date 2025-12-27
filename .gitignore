@@ -7,6 +7,7 @@ _Config/config.ini
 api_keys/
 **/*_key.txt
 .env
+.streamlit/secrets.toml
 
 # Python
 __pycache__/

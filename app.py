@@ -18,6 +18,9 @@ import configparser
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
+# Import authentication module
+from src.auth import check_authentication, get_current_user, show_user_menu, is_admin
+
 # Page config
 st.set_page_config(
     page_title="Procurement Classifier v2.1",
@@ -34,6 +37,23 @@ st.markdown("""
     .setup-box {background: #f0f8ff; padding: 2rem; border-radius: 10px; border: 2px solid #1f77b4;}
 </style>
 """, unsafe_allow_html=True)
+
+# ============================================
+# AUTHENTICATION CHECK (for cloud deployment)
+# ============================================
+# Set REQUIRE_AUTH=true in environment or Streamlit secrets to enable
+import os
+REQUIRE_AUTH = os.environ.get('REQUIRE_AUTH', '').lower() == 'true'
+try:
+    if hasattr(st, 'secrets') and st.secrets.get('REQUIRE_AUTH', False):
+        REQUIRE_AUTH = True
+except:
+    pass
+
+if REQUIRE_AUTH:
+    if not check_authentication():
+        st.stop()
+    show_user_menu()
 
 def check_config_needs_setup():
     """Check if config.ini exists and has valid API key"""

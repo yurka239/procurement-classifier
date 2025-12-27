@@ -94,17 +94,32 @@ class Config:
         
         # Validate OpenAI key (check for placeholder text)
         if not self.openai_key or 'your-' in self.openai_key.lower() or 'paste' in self.openai_key.lower() or not self.openai_key.startswith('sk-'):
-            raise ValueError(
-                f"\n" + "="*60 + f"\n"
-                f"OPENAI API KEY REQUIRED\n"
-                f"="*60 + f"\n\n"
-                f"Please add your OpenAI API key to:\n"
-                f"  {config_path}\n\n"
-                f"Open the file and replace the placeholder with your key:\n"
-                f"  openai_api_key = sk-proj-YOUR-ACTUAL-KEY\n\n"
-                f"Get your API key at: https://platform.openai.com/api-keys\n"
-                f"="*60
-            )
+            # For cloud deployment, provide a clearer message
+            try:
+                import streamlit as st
+                is_cloud = hasattr(st, 'secrets')
+            except:
+                is_cloud = False
+            
+            if is_cloud:
+                raise ValueError(
+                    "OPENAI API KEY REQUIRED\n\n"
+                    "Add 'openai_api_key' to your Streamlit Secrets:\n"
+                    "  openai_api_key = \"sk-proj-YOUR-KEY\"\n\n"
+                    "Go to: App Settings → Secrets"
+                )
+            else:
+                raise ValueError(
+                    f"\n" + "="*60 + f"\n"
+                    f"OPENAI API KEY REQUIRED\n"
+                    f"="*60 + f"\n\n"
+                    f"Please add your OpenAI API key to:\n"
+                    f"  {config_path}\n\n"
+                    f"Open the file and replace the placeholder with your key:\n"
+                    f"  openai_api_key = sk-proj-YOUR-ACTUAL-KEY\n\n"
+                    f"Get your API key at: https://platform.openai.com/api-keys\n"
+                    f"="*60
+                )
         
         if self.web_search_provider == 'google':
             try:
@@ -157,12 +172,18 @@ class Config:
             if hasattr(st, 'secrets'):
                 # Try lowercase key (e.g., openai_api_key)
                 if key in st.secrets:
-                    return st.secrets[key]
+                    val = str(st.secrets[key]).strip()
+                    if val:
+                        print(f"[Config] Loaded {key} from Streamlit secrets")
+                        return val
                 # Try uppercase env var name (e.g., OPENAI_API_KEY)
                 if env_var and env_var in st.secrets:
-                    return st.secrets[env_var]
-        except:
-            pass
+                    val = str(st.secrets[env_var]).strip()
+                    if val:
+                        print(f"[Config] Loaded {env_var} from Streamlit secrets")
+                        return val
+        except Exception as e:
+            print(f"[Config] Error reading Streamlit secrets: {e}")
         
         # 3. Try direct key in config.ini (for local development)
         direct_key = self.config[section].get(key, '').strip()

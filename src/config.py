@@ -99,8 +99,8 @@ class Config:
             print("[Config] WARNING: No OpenAI key found!")
         
         # Validate OpenAI key (check for placeholder text)
-        # Accept any key starting with 'sk-' (includes sk-proj, sk-svcacct for enterprise, etc.)
-        if not self.openai_key or 'your-' in self.openai_key.lower() or 'paste' in self.openai_key.lower() or not self.openai_key.startswith('sk-'):
+        # Accept any key starting with 'sk-' (case-insensitive: sk-, Sk-, SK-)
+        if not self.openai_key or 'your-' in self.openai_key.lower() or 'paste' in self.openai_key.lower() or not self.openai_key.lower().startswith('sk-'):
             # For cloud deployment, provide a clearer message
             try:
                 import streamlit as st

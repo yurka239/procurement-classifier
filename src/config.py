@@ -92,7 +92,14 @@ class Config:
         # Load API keys (priority: env vars > streamlit secrets > config.ini > files)
         self.openai_key = self._load_api_key('API_Keys', 'openai_api_key', self.openai_key_file, env_var='OPENAI_API_KEY')
         
+        # Debug: show what key was loaded
+        if self.openai_key:
+            print(f"[Config] OpenAI key loaded, starts with: {self.openai_key[:12]}...")
+        else:
+            print("[Config] WARNING: No OpenAI key found!")
+        
         # Validate OpenAI key (check for placeholder text)
+        # Accept any key starting with 'sk-' (includes sk-proj, sk-svcacct for enterprise, etc.)
         if not self.openai_key or 'your-' in self.openai_key.lower() or 'paste' in self.openai_key.lower() or not self.openai_key.startswith('sk-'):
             # For cloud deployment, provide a clearer message
             try:
@@ -105,7 +112,8 @@ class Config:
                 raise ValueError(
                     "OPENAI API KEY REQUIRED\n\n"
                     "Add 'openai_api_key' to your Streamlit Secrets:\n"
-                    "  openai_api_key = \"sk-proj-YOUR-KEY\"\n\n"
+                    "  openai_api_key = \"sk-...\"\n\n"
+                    "(Accepts sk-proj, sk-svcacct, or other valid OpenAI keys)\n\n"
                     "Go to: App Settings → Secrets"
                 )
             else:

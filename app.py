@@ -81,9 +81,25 @@ def check_config_needs_setup():
     return False, config_path
 
 def get_env_key(env_var):
-    """Get API key from environment variable"""
+    """Get API key from environment variable or Streamlit secrets"""
     import os
-    return os.environ.get(env_var, '').strip()
+    # First check environment variable
+    value = os.environ.get(env_var, '').strip()
+    if value:
+        return value
+    # Then check Streamlit secrets (for cloud deployment)
+    try:
+        if hasattr(st, 'secrets'):
+            # Try exact match (e.g., OPENAI_API_KEY)
+            if env_var in st.secrets:
+                return str(st.secrets[env_var]).strip()
+            # Try lowercase (e.g., openai_api_key)
+            lower_key = env_var.lower()
+            if lower_key in st.secrets:
+                return str(st.secrets[lower_key]).strip()
+    except:
+        pass
+    return ''
 
 def read_key_from_file(file_path):
     """Read API key from file"""

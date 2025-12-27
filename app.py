@@ -63,16 +63,22 @@ def check_config_needs_setup():
     # First check if API key is in Streamlit secrets (for cloud deployment)
     try:
         if hasattr(st, 'secrets'):
+            # Debug: show what keys are available (remove after debugging)
+            available_keys = list(st.secrets.keys()) if hasattr(st.secrets, 'keys') else []
+            print(f"[DEBUG] Streamlit secrets keys: {available_keys}")
+            
             if 'openai_api_key' in st.secrets:
                 key = str(st.secrets['openai_api_key']).strip()
+                print(f"[DEBUG] Found openai_api_key, starts with: {key[:10]}...")
                 if key and key.startswith('sk-'):
                     return False, config_path  # No setup needed - key in secrets
             if 'OPENAI_API_KEY' in st.secrets:
                 key = str(st.secrets['OPENAI_API_KEY']).strip()
+                print(f"[DEBUG] Found OPENAI_API_KEY, starts with: {key[:10]}...")
                 if key and key.startswith('sk-'):
                     return False, config_path  # No setup needed - key in secrets
-    except:
-        pass
+    except Exception as e:
+        print(f"[DEBUG] Error checking secrets: {e}")
     
     # If no config.ini, needs setup
     if not config_path.exists():

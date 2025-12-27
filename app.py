@@ -56,9 +56,23 @@ if REQUIRE_AUTH:
     show_user_menu()
 
 def check_config_needs_setup():
-    """Check if config.ini exists and has valid API key"""
+    """Check if config.ini exists and has valid API key, or if Streamlit secrets has the key"""
     config_path = Path(__file__).parent / '_Config' / 'config.ini'
     example_path = Path(__file__).parent / '_Config' / 'config.ini.example'
+    
+    # First check if API key is in Streamlit secrets (for cloud deployment)
+    try:
+        if hasattr(st, 'secrets'):
+            if 'openai_api_key' in st.secrets:
+                key = str(st.secrets['openai_api_key']).strip()
+                if key and key.startswith('sk-'):
+                    return False, config_path  # No setup needed - key in secrets
+            if 'OPENAI_API_KEY' in st.secrets:
+                key = str(st.secrets['OPENAI_API_KEY']).strip()
+                if key and key.startswith('sk-'):
+                    return False, config_path  # No setup needed - key in secrets
+    except:
+        pass
     
     # If no config.ini, needs setup
     if not config_path.exists():
